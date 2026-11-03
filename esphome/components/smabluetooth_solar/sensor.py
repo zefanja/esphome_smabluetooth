@@ -233,6 +233,15 @@ CONFIG_SCHEMA = (
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
+
+    # ESPHome >= 2026.9 excludes the IDF "bt" component by default; request it
+    # explicitly so esp_bt.h & co. are available. No-op on older versions.
+    try:
+        from esphome.components import esp32
+        if hasattr(esp32, "include_builtin_idf_component"):
+            esp32.include_builtin_idf_component("bt")
+    except ImportError:
+        pass
 #    await modbus.register_modbus_device(var, config)
 
     cg.add(var.set_sma_inverter_bluetooth_mac(config[CONF_SMA_INVERTER_BLUETOOTH_MAC]))
