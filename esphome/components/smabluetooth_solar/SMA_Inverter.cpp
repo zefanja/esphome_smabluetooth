@@ -954,12 +954,12 @@ E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, ui
                             case NameplateModel:
                                 value32 = getattribute(recptr);
                                 invData.DeviceType = value32;
-                                ESP_LOGI(TAG, "INV_TYPE %d", value32);
+                                ESP_LOGI(TAG, "INV_TYPE %" PRId32, value32);
                                 break;
                             case NameplateMainModel:
                                 value32 = getattribute(recptr);
                                 invData.DeviceClass = value32;
-                                ESP_LOGI(TAG, "INV_CLASS %d", value32);
+                                ESP_LOGI(TAG, "INV_CLASS %" PRId32, value32);
                                 break;
                             case CoolsysTmpNom:
                                 invData.InvTemp = value32;
@@ -969,12 +969,12 @@ E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, ui
                             case OperationHealth:
                                 value32 = getattribute(recptr);
                                 invData.DevStatus = value32;
-                                ESP_LOGI(TAG, "DevStatus %d", value32);
+                                ESP_LOGI(TAG, "DevStatus %" PRId32, value32);
                                 break;
                             case OperationGriSwStt:
                                 value32 = getattribute(recptr);
                                 invData.GridRelay = value32;
-                                ESP_LOGI(TAG, "GridRelay %d", value32);
+                                ESP_LOGI(TAG, "GridRelay %" PRId32, value32);
                                 break;
                             case MeteringGridMsTotWOut:
                                 invData.MeteringGridMsTotWOut = value32;
@@ -1241,7 +1241,7 @@ void ESP32_SMA_Inverter::setInverterTime(bool force) {
     printUnixTime(timeBuf, invTime);
     invData.InverterTimestamp = std::string(timeBuf);
     ESP_LOGI(TAG, "setInverterTime: inverter clock = %s (UTC)", timeBuf);
-    ESP_LOGI(TAG, "setInverterTime: tz_dst=0x%08X timesetCount=%u", tz_dst, timesetCount);
+    ESP_LOGI(TAG, "setInverterTime: tz_dst=0x%08" PRIX32 " timesetCount=%" PRIu32, tz_dst, timesetCount);
 
     hosttime = time(nullptr);
 
@@ -1391,7 +1391,7 @@ void ESP32_SMA_Inverter::HexDump(uint8_t *buf, int count, int radix, uint8_t c) 
         }
         lp += sprintf(lp, " %02X", buf[i]);
     }
-    if (lp != line) ESP_LOGD(TAG, "%s", line);
+    if (lp != line) { ESP_LOGD(TAG, "%s", line); }
 }
 
 uint8_t ESP32_SMA_Inverter::printUnixTime(char *buf, time_t t) {
