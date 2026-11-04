@@ -32,7 +32,7 @@ namespace esphome {
 namespace smabluetooth_solar {
 
 static const char *const TAG = "smabluetooth_solar";
-static const time_t MIN_VALID_TIME = 1735689600; // 2026-01-01 UTC
+static const time_t MIN_VALID_TIME = 1767225600; // 2026-01-01 UTC
 
 namespace {
 
@@ -261,7 +261,7 @@ void ESP32_SMA_Inverter::spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param
         break;
 
     case ESP_SPP_OPEN_EVT:
-        ESP_LOGI(TAG, "SPP_OPEN status=%d handle=%lu", param->open.status, param->open.handle);
+        ESP_LOGI(TAG, "SPP_OPEN status=%d handle=%" PRIu32, param->open.status, param->open.handle);
         if (param->open.status == ESP_SPP_SUCCESS) {
             self->spp_handle_   = param->open.handle;
             self->btConnected_  = true;
@@ -272,7 +272,7 @@ void ESP32_SMA_Inverter::spp_callback(esp_spp_cb_event_t event, esp_spp_cb_param
         break;
 
     case ESP_SPP_CLOSE_EVT:
-        ESP_LOGI(TAG, "SPP_CLOSE handle=%lu", param->close.handle);
+        ESP_LOGI(TAG, "SPP_CLOSE handle=%" PRIu32, param->close.handle);
         self->spp_handle_  = 0;
         self->btConnected_ = false;
         xEventGroupSetBits(self->bt_event_group_, BT_EVT_DISCONNECTED);
@@ -649,7 +649,7 @@ E_RC ESP32_SMA_Inverter::getPacket(const uint8_t expAddr[6], int wait4Command) {
             if (isValidSender(expAddr, pL1Hdr->SourceAddr)) {
                 rc = E_OK;
 
-                ESP_LOGD(TAG, "HasL2pckt: 0x7E?=0x%02X 0x656003FF?=0x%08X",
+                ESP_LOGD(TAG, "HasL2pckt: 0x7E?=0x%02X 0x656003FF?=0x%08" PRIX32,
                          btrdBuf[18], get_u32(btrdBuf + 19));
 
                 if (!hasL2pckt && btrdBuf[18] == 0x7E &&
@@ -755,7 +755,7 @@ uint32_t ESP32_SMA_Inverter::getattribute(uint8_t *pcktbuf) {
 // ============================================================
 
 E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, uint32_t last) {
-    ESP_LOGV(TAG, "getInverterDataCfl cmd=%u first=%u last=%u", command, first, last);
+    ESP_LOGV(TAG, "getInverterDataCfl cmd=%" PRIu32 " first=%" PRIu32 " last=%" PRIu32, command, first, last);
 
     do {
         pcktID++;
@@ -825,8 +825,6 @@ E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, ui
 
                             switch (lri) {
                             case GridMsTotW: {
-                                // 2026-01-01 00:00:00 UTC
-                                static const time_t MIN_VALID_TIME = 1735689600;
                                 if (datetime < MIN_VALID_TIME) {
                                     time_t now = time(nullptr);
                                     if (now >= MIN_VALID_TIME) {
@@ -983,7 +981,7 @@ E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, ui
                                 invData.MeteringGridMsTotWIn = value32;
                                 break;
                             default:
-                                ESP_LOGV(TAG, "Unknown LRI 0x%04x val=%d", lri, value32);
+                                ESP_LOGV(TAG, "Unknown LRI 0x%04x val=%" PRId32, lri, value32);
                                 break;
                             }
                         } // for records
@@ -1100,7 +1098,7 @@ E_RC ESP32_SMA_Inverter::initialiseSMAConnection() {
     if (!validateChecksum()) return E_CHKSUM;
 
     invData.Serial = get_u32(pcktBuf + 57);
-    ESP_LOGW(TAG, "Serial Nr: %lu", invData.Serial);
+    ESP_LOGW(TAG, "Serial Nr: %" PRIu32, invData.Serial);
     return E_OK;
 }
 
@@ -1151,7 +1149,7 @@ E_RC ESP32_SMA_Inverter::logonSMAInverter(const char *password, const uint8_t us
     if (pcktID == rcvpcktID && get_u32(pcktBuf + 41) == (uint32_t)now) {
         invData.SUSyID = get_u16(pcktBuf + 15);
         invData.Serial = get_u32(pcktBuf + 17);
-        ESP_LOGV(TAG, "SUSyID=0x%02X Serial=0x%08X", invData.SUSyID, invData.Serial);
+        ESP_LOGV(TAG, "SUSyID=0x%02X Serial=0x%08" PRIX32, invData.SUSyID, invData.Serial);
     } else {
         ESP_LOGW(TAG, "Logon unexpected response pcktID=0x%04X rcvpcktID=0x%04X",
                  pcktID, rcvpcktID);
