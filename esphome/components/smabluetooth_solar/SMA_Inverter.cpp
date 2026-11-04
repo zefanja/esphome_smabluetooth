@@ -32,7 +32,7 @@ namespace esphome {
 namespace smabluetooth_solar {
 
 static const char *const TAG = "smabluetooth_solar";
-static const time_t MIN_VALID_TIME = 1735689600; // 2026-01-01 UTC
+static const time_t MIN_VALID_TIME = 1767225600; // 2026-01-01 UTC
 
 namespace {
 
@@ -825,8 +825,6 @@ E_RC ESP32_SMA_Inverter::getInverterDataCfl(uint32_t command, uint32_t first, ui
 
                             switch (lri) {
                             case GridMsTotW: {
-                                // 2026-01-01 00:00:00 UTC
-                                static const time_t MIN_VALID_TIME = 1735689600;
                                 if (datetime < MIN_VALID_TIME) {
                                     time_t now = time(nullptr);
                                     if (now >= MIN_VALID_TIME) {
